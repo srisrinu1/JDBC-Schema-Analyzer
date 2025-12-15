@@ -55,7 +55,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.sr.jdbcinspector.App</mainClass>
+                            <mainClass>com.sr.jdbc_tool.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
