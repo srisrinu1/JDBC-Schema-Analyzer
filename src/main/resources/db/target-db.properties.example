@@ -1,7 +1,7 @@
 # Example target database configuration for PostgreSQL
 
-db.url=jdbc:postgresql://localhost:5432/target_db
-db.username=your_target_db_user
-db.password=your_target_db_password
-db.driverClassName=org.postgresql.Driver
-db.dialect=postgres
+jdbc.url=jdbc:postgresql://localhost:5432/target_db
+jdbc.username=your_target_db_user
+jdbc.password=your_target_db_password
+jdbc.driverClassName=org.postgresql.Driver
+jdbc.dialect=postgres
