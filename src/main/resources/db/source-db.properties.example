@@ -1,0 +1,7 @@
+# Example source database configuration
+
+db.url=jdbc:mysql://localhost:3306/source_db
+db.username=your_source_db_user
+db.password=your_source_db_password
+db.driverClassName=com.mysql.cj.jdbc.Driver
+db.dialect=mysql
