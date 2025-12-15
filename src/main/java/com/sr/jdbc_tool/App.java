@@ -13,18 +13,44 @@ public class App {
         DbConfigLoader loader = new DbConfigLoader();
         DataSourceFactory factory = new DataSourceFactory();
         try {
+            System.out.println("Loading database configurations...");
+            
             DbConfig sourceConfig = loader.load("db/source-db.properties");
             DbConfig targetConfig = loader.load("db/target-db.properties");
-            try (
-                Connection sourceConn = factory.createConnection(sourceConfig);
-                Connection targetConn = factory.createConnection(targetConfig)
-            ) {
+            
+            System.out.println("Configurations loaded successfully.");
+            System.out.println();
+            
+            // Test source database connection
+            System.out.println("Testing SOURCE database connection...");
+            try (Connection sourceConn = factory.createConnection(sourceConfig)) {
                 sanityCheck(sourceConn);
-                sanityCheck(targetConn);
-                System.out.println("Both databases are reachable.");
+                System.out.println("✓ SUCCESS: Connected to SOURCE database");
+                System.out.println("  URL: " + sourceConfig.getUrl());
+                System.out.println("  User: " + sourceConfig.getUserName());
+                System.out.println();
             }
+            
+            // Test target database connection
+            System.out.println("Testing TARGET database connection...");
+            try (Connection targetConn = factory.createConnection(targetConfig)) {
+                sanityCheck(targetConn);
+                System.out.println("✓ SUCCESS: Connected to TARGET database");
+                System.out.println("  URL: " + targetConfig.getUrl());
+                System.out.println("  User: " + targetConfig.getUserName());
+                System.out.println();
+            }
+            
+            System.out.println("=====================================");
+            System.out.println("✓ All database connections successful");
+            System.out.println("=====================================");
+            
         } catch (Exception e) {
-            System.err.println("Startup failed: " + e.getMessage());
+            System.err.println();
+            System.err.println("=====================================");
+            System.err.println("✗ FAILURE: Database connection test failed");
+            System.err.println("=====================================");
+            System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
             System.exit(1);
         }
