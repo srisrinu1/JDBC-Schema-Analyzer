@@ -6,12 +6,16 @@ import com.sr.jdbc_tool.db.DataSourceFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class App {
+     private static final Logger logger=LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
         DbConfigLoader loader = new DbConfigLoader();
         DataSourceFactory factory = new DataSourceFactory();
+       
         try {
             DbConfig sourceConfig = loader.load("db/source-db.properties");
             DbConfig targetConfig = loader.load("db/target-db.properties");
@@ -21,11 +25,10 @@ public class App {
             ) {
                 sanityCheck(sourceConn);
                 sanityCheck(targetConn);
-                System.out.println("Both databases are reachable.");
+                logger.info("Both databases are reachable.");
             }
         } catch (Exception e) {
-            System.err.println("Startup failed: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Startup failed: " + e.getMessage(), e);
             System.exit(1);
         }
     }

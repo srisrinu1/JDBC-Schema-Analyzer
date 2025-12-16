@@ -6,11 +6,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataSourceFactory {
 
     private static final int LOGIN_TIMEOUT_SECONDS = 5;
     private static final int VALIDATION_TIMEOUT_SECONDS = 5;
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceFactory.class);
 
     public Connection createConnection(DbConfig dbConfig) throws SQLException {
         Objects.requireNonNull(
@@ -29,10 +32,14 @@ public class DataSourceFactory {
 
         Connection conn = null;
         try {
+            logger.info("Attempting to create connection: url={}, username={}, driverClassName={}, dialect={}",
+                    safeUrl(url), username, driverClassName, dialect);
             conn = DriverManager.getConnection(url, username, password);
 
             if (!conn.isValid(VALIDATION_TIMEOUT_SECONDS)) {
                 closeQuietly(conn);
+                logger.error("Connection created but failed validation: url={}, username={}, driverClassName={}, dialect={}",
+                        safeUrl(url), username, driverClassName, dialect);
                 throw new SQLException(buildContextMessage(
                         "Connection created but failed validation",
                         url, username, driverClassName, dialect
@@ -40,10 +47,14 @@ public class DataSourceFactory {
             }
 
             conn.setAutoCommit(true);
+            logger.info("Successfully created and validated connection: url={}, username={}, driverClassName={}, dialect={}",
+                    safeUrl(url), username, driverClassName, dialect);
             return conn;
 
         } catch (SQLException e) {
             closeQuietly(conn);
+            logger.error("Failed to create connection: url={}, username={}, driverClassName={}, dialect={}",
+                    safeUrl(url), username, driverClassName, dialect, e);
             throw new SQLException(
                     buildContextMessage("Failed to create connection", url, username, driverClassName, dialect),
                     e
@@ -54,13 +65,16 @@ public class DataSourceFactory {
     private static void loadDriver(String driverClassName) {
         try {
             Class.forName(driverClassName);
+            logger.info("Loaded JDBC driver class: {}", driverClassName);
         } catch (ClassNotFoundException e) {
+            logger.error("JDBC driver class not found: {}", driverClassName, e);
             throw new IllegalStateException("JDBC driver class not found: " + driverClassName, e);
         }
     }
 
     private static String requireNonBlank(String value, String fieldName) {
         if (value == null || value.isBlank()) {
+            logger.error("Missing required configuration value: {}", fieldName);
             throw new IllegalArgumentException("Missing required configuration value: " + fieldName);
         }
         return value.trim();
